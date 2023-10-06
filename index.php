@@ -10,8 +10,6 @@ $main = include_template('main.php', [
 
 print(include_template('layout.php', [
     'page_title' => $page_title,
-    'is_auth' => $is_auth,
-    'user_name' => $user_name,
     'categories' => get_categories_list($mysql),
     'main' => $main,
 ]));

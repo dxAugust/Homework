@@ -2,11 +2,13 @@
 require_once('functions.php');
 require_once('helpers.php');
 
+session_start();
+
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $page_title = 'Главная';
-$is_auth = rand(0, 1);
-$user_name = 'Константин';
+$is_auth = 0;
+$user_name = '';
 
 $user_id = 1;
 

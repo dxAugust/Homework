@@ -10,6 +10,11 @@
         "message" => false,
     );
 
+    if (isset($_SESSION['is_auth']) && $_SESSION['is_auth'])
+    {
+        header("Location: /");  
+    }
+
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
     {
         if (isset($_POST["email"]) && !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
@@ -43,8 +48,6 @@
 
     print(include_template('header.php', [
       'page_title' => $page_title,
-      'is_auth' => $is_auth,
-      'user_name' => $user_name,
       'categories' => $category_list
     ]));
 

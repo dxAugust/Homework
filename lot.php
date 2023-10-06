@@ -6,8 +6,6 @@
 
     print(include_template('header.php', [
       'page_title' => $page_title,
-      'is_auth' => $is_auth,
-      'user_name' => $user_name,
       'categories' => $category_list
     ]));
 
@@ -21,7 +19,7 @@
             <h2>404 Страница не найдена</h2>
             <p>Данной страницы не существует на сайте.</p>
       </section>
-
+ 
       </main>
       ');
     } else {

@@ -79,15 +79,26 @@
     $category_list = get_categories_list($mysql);
     print(include_template('header.php', [
       'page_title' => $page_title,
-      'is_auth' => $is_auth,
-      'user_name' => $user_name,
       'categories' => $category_list
     ])); 
 
-    print(include_template('add.php', [
+    if (isset($_SESSION['is_auth']))
+    {
+      print(include_template('add.php', [
         'error_codes' => $error_codes,
         'categories' => $category_list
-    ]));
+      ]));
+    } else {
+      http_response_code(403);
+      print('
+        <section class="lot-item container">
+              <h2>403 Доступ запрещён</h2>
+              <p>Вам необходимо быть авторизированным для просмотра этой страницы</p>
+        </section>
+  
+        </main>
+      ');
+  }
 ?>
 
 </div>

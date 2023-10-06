@@ -137,20 +137,34 @@ function register_user($mysql, $data)
     $sql_query = "INSERT INTO `account` (`email`, `name`, `password`, `contacts`) VALUES(?, ?, ?, ?)";
 
     $userData = Array(
-        "email" => htmlspecialchars($data["email"]),
+        "email" => strip_tags($data["email"]),
         "password" => password_hash($data['password'], PASSWORD_DEFAULT),
-        "name" => htmlspecialchars($data["name"]),
-        "message" => htmlspecialchars($data["message"]),
+        "name" => strip_tags($data["name"]),
+        "message" => strip_tags($data["message"]),
     );
     $stmt = mysqli_prepare($mysql, $sql_query);
     mysqli_stmt_bind_param($stmt, 'ssss', 
     $userData["email"],
-    $userData["password"],
     $userData["name"],
+    $userData["password"],
     $userData["message"]
     );
 
     mysqli_stmt_execute($stmt);
+    return mysqli_insert_id($mysql);
+}
+
+function get_user_info_by_email($mysql, $email)
+{
+    $sql_query = "SELECT * FROM `account` WHERE `account`.`email`=?";
+
+    $stmt = mysqli_prepare($mysql, $sql_query);
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    mysqli_stmt_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_assoc($result) ?? false;
 }
 
 ?>
