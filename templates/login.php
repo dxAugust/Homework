@@ -2,12 +2,12 @@
       <h2>Вход</h2>
       <div class="form__item <?php if ($error_codes["email"]): ?> form__item--invalid <?php endif; ?>"> <!-- form__item--invalid -->
         <label for="email">E-mail <sup>*</sup></label>
-        <input id="email" type="text" name="email" value="<?= htmlspecialchars(getPostVal("email")) ?>" placeholder="Введите e-mail">
+        <input id="email" type="text" name="email" value="<?= htmlspecialchars(get_post_val("email")) ?>" placeholder="Введите e-mail">
         <span class="form__error"><?= $error_codes["email"] ?></span>
       </div>
       <div class="form__item form__item--last <?php if ($error_codes["password"]): ?> form__item--invalid <?php endif; ?>">
         <label for="password">Пароль <sup>*</sup></label>
-        <input id="password" type="password" name="password" value="<?= htmlspecialchars(getPostVal("password")) ?>" placeholder="Введите пароль">
+        <input id="password" type="password" name="password" value="<?= htmlspecialchars(get_post_val("password")) ?>" placeholder="Введите пароль">
         <span class="form__error"><?= $error_codes["password"] ?></span>
       </div>
 
