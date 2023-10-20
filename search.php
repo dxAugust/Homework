@@ -1,18 +1,20 @@
 <?php
     require_once('init.php');
 
+    const ELEMENTS_PER_PAGE = 2;
+
     $category_list = get_categories_list($mysql);
     $search_term = $_GET["search"];
 
     $current_page = 1;
 
-    isset($_GET["page"]) ? $current_page = $_GET["page"] : "";
-    $max_pages = 0;
+    isset($_GET["page"]) ? $current_page = $_GET["page"] : 1;
 
-    $lots = search_lots_by_name($mysql, $search_term);
+    $lots = search_lots_by_name($mysql, $search_term, ELEMENTS_PER_PAGE, ($current_page - 1) * ELEMENTS_PER_PAGE);
+    $max_pages = ceil(count($lots) / ELEMENTS_PER_PAGE);
 
     print(include_template('header.php', [
-      'page_title' => $page_title,
+      'page_title' => "Поиск",
       'categories' => $category_list
     ]));
 

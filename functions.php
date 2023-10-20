@@ -45,7 +45,7 @@ const HOUR_SECONDS = 3600;
 const MINUTE_SECONDS = 60;
 
 /**
-* Получает разницу между датами в часах и минутах (Пример: 02:28)
+* Получает разницу между датами в часах, минутах, секундах (Пример: 02:28:12)
 * @param string $date Дата для валидации
 *
 * @return array Возвращает массив с кол-вом часов и минут
@@ -56,7 +56,9 @@ function get_dt_range($date)
 
     $hours = str_pad(floor($date_diff / HOUR_SECONDS), 2, "0", STR_PAD_LEFT);
     $minutes = str_pad((round($date_diff / MINUTE_SECONDS) % MINUTE_SECONDS), 2, "0", STR_PAD_LEFT);
-    return [$hours, $minutes];
+    $seconds = str_pad((round($date_diff) % 1), 2, "0", STR_PAD_LEFT);
+
+    return [$hours, $minutes, $seconds];
 }
 
 /**
@@ -127,7 +129,7 @@ function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array
     mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
-    $rows = mysqli_fetch_all($result);
+    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     return $rows;
 }
@@ -162,13 +164,12 @@ function add_lot_to_database(mysqli $mysql, array $data)
 }
 
 /**
-* 
-* @param mysqli $mysql Текущее подключение к базе данных
-* @param array $data Данные пользователя
+* Возвращает время в формате прошедших дней суток, часов и т. д.
+* @param string $date Дата
 *
-* @return integer ID добавленного лота
+* @return string Отформатированное время
 */
-function format_time(string $date)
+function format_time(string $date) : string
 {
     $date_time = strtotime($date);
 
@@ -186,11 +187,14 @@ function format_time(string $date)
         foreach ($tokens as $unit => $text) {
             if ($time < $unit) continue;
             $numberOfUnits = floor($time / $unit);
-            return $numberOfUnits.' '.$text;
+            
+            return $numberOfUnits .' '. $text;
         }
     } else {
         return date('d.m.y в H:i', $date_time);
     }
+
+    return "";
 }
 
 /**
@@ -262,17 +266,17 @@ function get_user_info_by_email(mysqli $mysql, string $email)
 *
 * @return array Найденные лоты (В противном случае возвращает null)
 */
-function search_lots_by_name(mysqli $mysql, string $term) : array | null
+function search_lots_by_name(mysqli $mysql, string $term, int $limit, int $offset) : array | null
 {
-    $sql_query = "SELECT * FROM `lot` WHERE `lot`.`name`=?";
+    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` WHERE MATCH(`lot`.`name`, `lot`.`description`) AGAINST(?) LIMIT ? OFFSET ?";
 
     $stmt = mysqli_prepare($mysql, $sql_query);
-    mysqli_stmt_bind_param($stmt, 's', $term);
+    mysqli_stmt_bind_param($stmt, 'sii', $term, $limit, $offset);
     mysqli_stmt_execute($stmt);
     
     $result = mysqli_stmt_get_result($stmt);
 
-    return mysqli_fetch_assoc($result) ?? null;
+    return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? null;
 }
 
 ?>

@@ -48,9 +48,9 @@
             <table class="history__list">
               <?php foreach($bet_history as $bet): ?>
                   <tr class="history__item">
-                    <td class="history__name"><?= $bet[3] ?></td>
-                    <td class="history__price"><?= pretty_number($bet[1]) ?> р</td>
-                    <td class="history__time"><?= format_time($bet[0]) ?></td>
+                    <td class="history__name"><?= $bet["account_name"] ?></td>
+                    <td class="history__price"><?= pretty_number($bet["summary"]) ?> р</td>
+                    <td class="history__time"><?= format_time($bet["create_date"]) ?></td>
                   </tr>
               <?php endforeach; ?>
               
