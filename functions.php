@@ -23,6 +23,33 @@ function pretty_number($num)
 }
 
 /**
+* Получает числительное слово относительно указанного числа
+* Пример: 1 год, 2 года, 25 лет
+* @param integer $num Число
+* @param array $words Словарь из трёх слов
+*
+* @return string Возвращает строку с форматрированным числом
+*/
+function num2word($num, $words)
+{
+    $num = $num % 100;
+    if ($num > 19) {
+        $num = $num % 10;
+    }
+    switch ($num) {
+        case 1: {
+            return($words[0]);
+        }
+        case 2: case 3: case 4: {
+            return($words[1]);
+        }
+        default: {
+            return($words[2]);
+        }
+    }
+}
+
+/**
 * Проверяет является ли дата в будующем или настоящем времени
 * @param string $date Дата для валидации
 *
@@ -56,7 +83,7 @@ function get_dt_range($date)
 
     $hours = str_pad(floor($date_diff / HOUR_SECONDS), 2, "0", STR_PAD_LEFT);
     $minutes = str_pad((round($date_diff / MINUTE_SECONDS) % MINUTE_SECONDS), 2, "0", STR_PAD_LEFT);
-    $seconds = str_pad((round($date_diff) % 1), 2, "0", STR_PAD_LEFT);
+    $seconds = str_pad((round($date_diff) % 60), 2, "0", STR_PAD_LEFT);
 
     return [$hours, $minutes, $seconds];
 }
@@ -84,7 +111,7 @@ function get_categories_list(mysqli $mysql) : array
 */
 function get_lot_list(mysqli $mysql)
 {
-    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP ORDER BY `lot`.`date_create`";
+    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP GROUP BY `lot`.`id` ORDER BY `lot`.`date_create`;";
     $result = mysqli_query($mysql, $sql_query);
     $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
@@ -132,6 +159,47 @@ function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array
     $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     return $rows;
+}
+
+/**
+* Получить список лотов по индентификатору категорию
+* @param mysqli $mysql Текущее подключение к базе данных
+* @param integer $id Идентификатор категории
+*
+* @return array Возвращает список лотов
+*/
+function get_lot_list_by_category_id(mysqli $mysql, int $id, int $elements, int $page) : array
+{
+    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP AND `lot`.`category_id` = ? GROUP BY `lot`.`id` ORDER BY `lot`.`date_create` LIMIT ? OFFSET ?;";
+    
+    $stmt = mysqli_prepare($mysql, $sql_query);
+    mysqli_stmt_bind_param($stmt, 'iii', $id, $elements, $page);
+    mysqli_stmt_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+/**
+* Получить название категории по индентификатору категории
+* @param mysqli $mysql Текущее подключение к базе данных
+* @param integer $id Идентификатор категории
+*
+* @return string Возвращает название категории
+*/
+function get_category_name_by_id(mysqli $mysql, int $category_id) : string
+{
+    $sql_query = "SELECT `category`.`name` FROM `category` WHERE `category`.`id` = ?";
+
+    $stmt = mysqli_prepare($mysql, $sql_query);
+    mysqli_stmt_bind_param($stmt, 'i', $category_id);
+    mysqli_stmt_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+    $category = mysqli_fetch_assoc($result);
+
+    return $category['name'];
 }
 
 /**
@@ -268,7 +336,7 @@ function get_user_info_by_email(mysqli $mysql, string $email)
 */
 function search_lots_by_name(mysqli $mysql, string $term, int $limit, int $offset) : array | null
 {
-    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` WHERE MATCH(`lot`.`name`, `lot`.`description`) AGAINST(?) LIMIT ? OFFSET ?";
+    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP AND MATCH(`lot`.`name`, `lot`.`description`) AGAINST(?) LIMIT ? OFFSET ?";
 
     $stmt = mysqli_prepare($mysql, $sql_query);
     mysqli_stmt_bind_param($stmt, 'sii', $term, $limit, $offset);

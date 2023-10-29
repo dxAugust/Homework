@@ -1,4 +1,5 @@
 <div class="container">
+    <?php if (!count($lots)): ?>
       <section class="lots">
         <h2>Результаты поиска по запросу «<span><?= $search_term ?></span>»</h2>
         <ul class="lots__list">
@@ -60,5 +61,12 @@
           <li class="pagination-item pagination-item-next"><a>Вперед</a></li>
         <?php endif; ?>
       </ul>
+
+      <?php else: ?>
+        <section class="lots">
+            <h2>404 Ничего не найдено :(</h2>
+            <p>По запросу не найдено ни одного лота</p>
+        </section>  
+      <?php endif; ?>
     </div>
   </main>
