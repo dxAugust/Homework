@@ -148,8 +148,8 @@ function get_lot_info_by_id(mysqli $mysql, int $id) : array
 */
 function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array
 {
-    $sql_query = "SELECT `bet`.`create_date`, `bet`.`summary`, `lot`.`name` AS `lot_name`, `account`.`name` AS `account_name` 
-    FROM `bet` INNER JOIN `lot` ON `bet`.`lot_id` = `lot`.`id` INNER JOIN `account` ON `bet`.`user_id` = `account`.`id` WHERE `bet`.`lot_id` = ? ORDER BY `bet`.`create_date`";
+    $sql_query = "SELECT `bet`.`create_date`, `bet`.`summary`, `lot`.`name` AS `lot_name`, `account`.`name` AS `account_name`
+    FROM `bet` INNER JOIN `lot` ON `bet`.`lot_id` = `lot`.`id` INNER JOIN `account` ON `bet`.`user_id` = `account`.`id` WHERE `bet`.`lot_id` = ? ORDER BY `bet`.`create_date` DESC, `bet`.`summary` ASC";
 
     $stmt = mysqli_prepare($mysql, $sql_query);
     mysqli_stmt_bind_param($stmt, 'i', $id);
@@ -371,7 +371,8 @@ function get_user_bets(mysqli $mysql, string $id) : array
     FROM `bet`
     INNER JOIN `lot` ON `lot`.`id` = `bet`.`lot_id`
     INNER JOIN `category` ON `category`.`id` = `lot`.`category_id`
-    WHERE `bet`.`user_id` = ?";
+    WHERE `bet`.`user_id` = ?
+    ORDER BY `expire_date` DESC";
 
     $stmt = mysqli_prepare($mysql, $sql_query);
     mysqli_stmt_bind_param($stmt, 'i', $id);

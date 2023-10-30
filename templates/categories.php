@@ -12,7 +12,7 @@
 
           <li class="lots__item lot">
             <div class="lot__image">
-              <img src="<?= htmlspecialchars($item['image_link']) ?>" width="350" height="260" alt="Сноуборд">
+              <img src="<?= htmlspecialchars($item['image_link']) ?>" width="350" height="260" alt="<?= htmlspecialchars($item['name']) ?>">
             </div>
             <div class="lot__info">
               <span class="lot__category"><?= htmlspecialchars($item['category_name']) ?></span>
@@ -34,7 +34,6 @@
               </div>
             </div>
           </li>
-          <?php endforeach; ?>
         </ul>
       </section>
       <ul class="pagination-list">
