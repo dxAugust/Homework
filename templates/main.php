@@ -4,7 +4,7 @@
         <ul class="promo__list">
             <?php foreach($categories as $item): ?>
             <li class="promo__item promo__item--<?= $item['code'] ?>">
-                <a class="promo__link" href="pages/all-lots.html"><?= htmlspecialchars($item['name']) ?></a>
+                <a class="promo__link" href="../category.php?id=<?= $item["id"] ?>"><?= htmlspecialchars($item['name']) ?></a>
             </li>
             <?php endforeach; ?>
         </ul>
@@ -27,7 +27,7 @@
                             <?php if (!intval($item['bet_count'])): ?>
                                 <span class="lot__amount">Стартовая цена</span>
                             <?php else: ?>
-                                <span class="lot__amount"><?= intval($item['bet_count']), " ", num2word(intval($item['bet_count']), array('ставка', 'ставки', 'ставок')) ?></span>
+                                <span class="lot__amount"><?= intval($item['bet_count']), " ", num_to_word(intval($item['bet_count']), array('ставка', 'ставки', 'ставок')) ?></span>
                             <?php endif; ?>
                             <span class="lot__cost"><?= make_number($item['start_price']) ?></span>
                         </div>

@@ -90,14 +90,10 @@
       ]));
     } else {
       http_response_code(403);
-      print('
-        <section class="lot-item container">
-              <h2>403 Доступ запрещён</h2>
-              <p>Вам необходимо быть авторизированным для просмотра этой страницы</p>
-        </section>
-  
-        </main>
-      ');
+      print(include_template('error.php', [
+        'title' => "403 Доступ запрещён",
+        'description' => "Вам необходимо быть авторизированным для просмотра этой страницы",
+      ]));
   }
 ?>
 

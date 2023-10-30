@@ -4,7 +4,7 @@
     const ELEMENTS_PER_PAGE = 2;
 
     $category_list = get_categories_list($mysql);
-    $search_term = $_GET["search"];
+    $search_term = trim($_GET["search"]);
 
     $current_page = 1;
 
@@ -22,7 +22,7 @@
       'search_term' => $search_term,
       'lots' => $lots,
       'current_page' => $current_page,
-      'max_pages' => $max_pages,
+      'max_pages' => $max_pages
     ]));
 ?>
 

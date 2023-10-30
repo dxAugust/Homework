@@ -1,7 +1,6 @@
 <?php
 print(include_template('header.php', [
     'page_title' => 'Главная',
-    'categories' => $categories,
 ]));
 ?>
 

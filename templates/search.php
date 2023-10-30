@@ -19,7 +19,13 @@
               <h3 class="lot__title"><a class="text-link" href="lot.php?id=<?= $item['id'] ?>"><?= htmlspecialchars($item['name']) ?></a></h3>
               <div class="lot__state">
                 <div class="lot__rate">
-                  <span class="lot__amount">Стартовая цена</span>
+                      <?php if (!intval($item['bet_count'])): ?>
+                        <span class="lot__amount">Стартовая цена</span>
+                      <?php else: ?>
+                        <span class="lot__amount">
+                          <?= intval($item['bet_count']), " ", num_to_word(intval($item['bet_count']), array('ставка', 'ставки', 'ставок')) ?>
+                        </span>
+                      <?php endif; ?>
                   <span class="lot__cost"><?= make_number(htmlspecialchars($item['start_price'])) ?></span>
                 </div>
                 <div class="lot__timer timer">

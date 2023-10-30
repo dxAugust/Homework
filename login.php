@@ -36,6 +36,7 @@
                 if (password_verify($user_data['password'], $user_info['password']))
                 {
                     $_SESSION['username'] = $user_info['name'];
+                    $_SESSION['user_id'] = $user_info['id'];
                     $_SESSION['is_auth'] = true;
                     header("Location: /");
                 } else {
@@ -53,12 +54,12 @@
     print(include_template('header.php', [
       'page_title' => $page_title,
       'categories' => $category_list
-    ])); 
+    ]));
 
     print(include_template('login.php', [
         'error_codes' => $error_codes,
         'auth_error' => $auth_error
-    ])); 
+    ]));
 ?>
 
 </div>

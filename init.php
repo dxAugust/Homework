@@ -4,6 +4,7 @@ require_once('helpers.php');
 
 session_start();
 
+date_default_timezone_set('Asia/Yekaterinburg');
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $page_title = 'Главная';

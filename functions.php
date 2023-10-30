@@ -6,7 +6,7 @@
 *
 * @return string Возвращает строку с форматрированным числом
 */
-function make_number($num)
+function make_number(int $num) : string
 {
     return number_format($num, 0, '', ' ').' ₽';
 } 
@@ -17,7 +17,7 @@ function make_number($num)
 *
 * @return string Возвращает строку с форматрированным числом
 */
-function pretty_number($num)
+function pretty_number(int $num) : string
 {
     return number_format($num, 0, '', ' ');
 }
@@ -30,7 +30,7 @@ function pretty_number($num)
 *
 * @return string Возвращает строку с форматрированным числом
 */
-function num2word($num, $words)
+function num_to_word(int $num, array $words) : string
 {
     $num = $num % 100;
     if ($num > 19) {
@@ -55,7 +55,7 @@ function num2word($num, $words)
 *
 * @return bool Возвращает true в случае если всё соотвестствует (false если дата не валидна или находится в прощедшем времени)
 */
-function is_future_date($date)
+function is_future_date(string $date) : bool
 {
     if (is_date_valid($date))
     {
@@ -77,7 +77,7 @@ const MINUTE_SECONDS = 60;
 *
 * @return array Возвращает массив с кол-вом часов и минут
 */
-function get_dt_range($date)
+function get_dt_range(string $date) : array
 {
     $date_diff = strtotime($date) - time();
 
@@ -109,7 +109,7 @@ function get_categories_list(mysqli $mysql) : array
 *
 * @return array Возвращает список всех актуальных лотов
 */
-function get_lot_list(mysqli $mysql)
+function get_lot_list(mysqli $mysql) : array
 {
     $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP GROUP BY `lot`.`id` ORDER BY `lot`.`date_create`;";
     $result = mysqli_query($mysql, $sql_query);
@@ -125,7 +125,7 @@ function get_lot_list(mysqli $mysql)
 *
 * @return array Возвращает информацию о лоте
 */
-function get_lot_info_by_id(mysqli $mysql, int $id)
+function get_lot_info_by_id(mysqli $mysql, int $id) : array
 {
     $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` WHERE `lot`.`id`=?";
 
@@ -166,7 +166,7 @@ function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array
 * @param mysqli $mysql Текущее подключение к базе данных
 * @param integer $id Идентификатор категории
 *
-* @return array Возвращает список лотов
+* @return array Возвращает список лотов и их количество
 */
 function get_lot_list_by_category_id(mysqli $mysql, int $id, int $elements, int $page) : array
 {
@@ -177,8 +177,17 @@ function get_lot_list_by_category_id(mysqli $mysql, int $id, int $elements, int 
     mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
+    $lots = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $sql_query = "SELECT `lot`.`id` FROM `lot` WHERE `lot`.`category_id` = ? AND `lot`.`expire_date` >= CURRENT_TIMESTAMP";
+
+    $stmt = mysqli_prepare($mysql, $sql_query);
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+
+    return [mysqli_num_rows($result), $lots];
 }
 
 /**
@@ -210,7 +219,7 @@ function get_category_name_by_id(mysqli $mysql, int $category_id) : string
 *
 * @return integer ID добавленного лота
 */
-function add_lot_to_database(mysqli $mysql, array $data)
+function add_lot_to_database(mysqli $mysql, array $data) : int
 {
     $sql_query = "INSERT INTO `lot` (`name`, `description`, `expire_date`, `start_price`, `bet_step`, `author_id`, `category_id`, `image_link`) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -229,6 +238,27 @@ function add_lot_to_database(mysqli $mysql, array $data)
     mysqli_stmt_execute($stmt);
 
     return mysqli_insert_id($mysql);
+}
+
+
+/**
+* Добавляет ставку к определённому лоту
+* с указанными данными
+* @param mysqli $mysql Текущее подключение к базе данных
+* @param array $data Данные ставки (Сумма, ID пользователя, ID лота)
+*
+*/
+function add_bet_to_lot(mysqli $mysql, array $data) : void
+{
+    $sql_query = "INSERT INTO `bet` (`summary`, `user_id`, `lot_id`) VALUES(?, ?, ?)";
+    $stmt = mysqli_prepare($mysql, $sql_query);
+    mysqli_stmt_bind_param($stmt, 'iii',
+        $data['summary'],
+        $data['user_id'],
+        $data['lot_id'],
+    );
+
+    mysqli_stmt_execute($stmt);
 }
 
 /**
@@ -271,7 +301,7 @@ function format_time(string $date) : string
 *
 * @return string Возвращает значение, иначе возвращает пустую строку
 */
-function get_post_val(string $name)
+function get_post_val(string $name) : string
 {
     return $_POST[$name] ?? "";
 }
@@ -284,7 +314,7 @@ function get_post_val(string $name)
 *
 * @return integer ID зарегистрированного пользователя
 */
-function register_user(mysqli $mysql, array $data)
+function register_user(mysqli $mysql, array $data) : int
 {
     $sql_query = "INSERT INTO `account` (`email`, `name`, `password`, `contacts`) VALUES(?, ?, ?, ?)";
 
@@ -314,7 +344,7 @@ function register_user(mysqli $mysql, array $data)
 *
 * @return array Информация о пользователе
 */
-function get_user_info_by_email(mysqli $mysql, string $email)
+function get_user_info_by_email(mysqli $mysql, string $email) : array | null
 {
     $sql_query = "SELECT * FROM `account` WHERE `account`.`email`=?";
 
@@ -325,6 +355,31 @@ function get_user_info_by_email(mysqli $mysql, string $email)
     $result = mysqli_stmt_get_result($stmt);
 
     return mysqli_fetch_assoc($result) ?? null;
+}
+
+/**
+* Получает список совершонных ставок пользователем
+* @param mysqli $mysql Текущее подключение к базе данных
+* @param int $id ID пользователя
+*
+* @return array Список ставок совершонных пользователем
+*/
+function get_user_bets(mysqli $mysql, string $id) : array
+{
+    $sql_query = "SELECT `bet`.*, `lot`.`id` as `lot_id`, `lot`.`name` as `lot_name`, `lot`.`image_link` as `lot_img`, `lot`.`expire_date` as `expire_date`,
+    `category`.`name` as `category_name`
+    FROM `bet`
+    INNER JOIN `lot` ON `lot`.`id` = `bet`.`lot_id`
+    INNER JOIN `category` ON `category`.`id` = `lot`.`category_id`
+    WHERE `bet`.`user_id` = ?";
+
+    $stmt = mysqli_prepare($mysql, $sql_query);
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? [];
 }
 
 /**
@@ -346,5 +401,3 @@ function search_lots_by_name(mysqli $mysql, string $term, int $limit, int $offse
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? null;
 }
-
-?>

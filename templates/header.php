@@ -49,13 +49,30 @@
     </div>
   </header>
 
+  <?php 
+  $current_category = 0;  
+
+  if (isset($category_id))
+  {
+    $current_category = $category_id;
+  }
+  ?>
+
   <main>
     <nav class="nav">
       <ul class="nav__list container">
-        <?php foreach($categories as $item): ?>
-        <li class="nav__item">
-            <a href="../category.php?id=<?= $item["id"] ?>"><?= $item['name'] ?></a>
-        </li>
-        <?php endforeach; ?>
+        <?php if (isset($categories)): ?>
+          <?php foreach($categories as $item): ?>
+            <?php if ($item["id"] != $current_category): ?>
+              <li class="nav__item">
+                  <a href="../category.php?id=<?= $item["id"] ?>"><?= $item['name'] ?></a>
+              </li>
+            <?php else: ?>
+              <li class="nav__item nav__item--current">
+                  <a href="../category.php?id=<?= $item["id"] ?>"><?= $item['name'] ?></a>
+              </li>
+            <?php endif; ?>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </ul>
     </nav>

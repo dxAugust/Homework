@@ -1,8 +1,6 @@
 <?php
 require_once('init.php');
 
-date_default_timezone_set('Asia/Yekaterinburg');
-
 $main = include_template('main.php', [
     'categories' => get_categories_list($mysql),
     'lots' => get_lot_list($mysql),
