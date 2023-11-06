@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `lot`
     FOREIGN KEY (`category_id`) REFERENCES `category`(`id`) ON DELETE CASCADE
 );
 
-ALTER TABLE `lot` ADD FULLTEXT INDEX `lots_ft_search` (`name`, `description`);
+ALTER TABLE `lot` ADD FULLTEXT(`name`, `description`);
 
 CREATE TABLE IF NOT EXISTS `bet`
 ( 

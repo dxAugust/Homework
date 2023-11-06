@@ -3,7 +3,9 @@
       <table class="rates__list">
 
         <?php foreach($bets as $bet): ?>
-          <tr class="rates__item">
+
+        <?php if(strtotime('now') <= strtotime($bet['expire_date'])): ?>
+        <tr class="rates__item">
           <td class="rates__info">
             <div class="rates__img">
               <img src="<?= $bet["lot_img"] ?>" width="54" height="40" alt="Сноуборд">
@@ -33,6 +35,32 @@
             <?= format_time($bet["create_date"]) ?>
           </td>
         </tr>
+
+        <?php else: ?>
+
+        <tr class="rates__item rates__item--end">
+          <td class="rates__info">
+            <div class="rates__img">
+              <img src="<?= $bet["lot_img"] ?>" width="54" height="40" alt="Сноуборд">
+            </div>
+            <h3 class="rates__title"><a href="../lot.php?id=<?= $bet["lot_id"] ?>"><?= $bet["lot_name"] ?></a></h3>
+          </td>
+          <td class="rates__category">
+            <?= $bet["category_name"] ?>
+          </td>
+          <td class="rates__timer">
+            <div class="timer timer--end">Торги окончены</div>
+          </td>
+          <td class="rates__price">
+            <?= pretty_number($bet["summary"]) ?> р
+          </td>
+          <td class="rates__time">
+            <?= format_time($bet["create_date"]) ?>
+          </td>
+        </tr>
+
+        <?php endif; ?>
+
         <?php endforeach; ?>
 
         <!--

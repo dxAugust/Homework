@@ -34,6 +34,7 @@
               </div>
             </div>
           </li>
+        <?php endforeach; ?>
         </ul>
       </section>
       <ul class="pagination-list">
@@ -60,4 +61,3 @@
         <?php endif; ?>
       </ul>
     </div>
-  </main>

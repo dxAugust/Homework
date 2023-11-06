@@ -18,12 +18,22 @@
       'categories' => $category_list
     ]));
 
-    print(include_template('search.php', [
-      'search_term' => $search_term,
-      'lots' => $lots,
-      'current_page' => $current_page,
-      'max_pages' => $max_pages
-    ]));
+    if (!empty($lots))
+    {
+      print(include_template('search.php', [
+        'search_term' => $search_term,
+        'lots' => $lots,
+        'current_page' => $current_page,
+        'max_pages' => $max_pages
+      ]));
+    } else {
+      http_response_code(404);
+      print(include_template('error.php', [
+        'title' => "404 Ничего не найдено",
+        'description' => "В этой категории ещё нет не одного активного лота",
+      ]));
+    }
+    
 ?>
 
 </div>

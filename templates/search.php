@@ -1,7 +1,11 @@
 <div class="container">
-    <?php if (!count($lots)): ?>
       <section class="lots">
-        <h2>Результаты поиска по запросу «<span><?= $search_term ?></span>»</h2>
+        <?php if(!empty($search_term)): ?>
+          <h2>Результаты поиска по запросу «<span><?= $search_term ?></span>»</h2>
+        <?php else: ?>
+          <h2>Все активные лоты</h2>
+        <?php endif; ?>
+        
         <ul class="lots__list">
         <?php foreach($lots as $item): ?>
           <?php
@@ -67,12 +71,5 @@
           <li class="pagination-item pagination-item-next"><a>Вперед</a></li>
         <?php endif; ?>
       </ul>
-
-      <?php else: ?>
-        <section class="lots">
-            <h2>404 Ничего не найдено :(</h2>
-            <p>По запросу не найдено ни одного лота</p>
-        </section>  
-      <?php endif; ?>
     </div>
   </main>

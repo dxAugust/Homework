@@ -98,9 +98,8 @@ function get_categories_list(mysqli $mysql) : array
 { 
     $sql_query = "SELECT * FROM category";
     $result = mysqli_query($mysql, $sql_query);
-    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    return $rows;
+    return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? [];
 }
 
 /**
@@ -113,9 +112,8 @@ function get_lot_list(mysqli $mysql) : array
 {
     $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP GROUP BY `lot`.`id` ORDER BY `lot`.`date_create`;";
     $result = mysqli_query($mysql, $sql_query);
-    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    return $rows;
+    return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? [];
 }
 
 /**
@@ -134,9 +132,8 @@ function get_lot_info_by_id(mysqli $mysql, int $id) : array
     mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
-    $lot = mysqli_fetch_assoc($result);
 
-    return $lot;
+    return mysqli_fetch_assoc($result) ?? [];
 }
 
 /**
@@ -146,7 +143,7 @@ function get_lot_info_by_id(mysqli $mysql, int $id) : array
 *
 * @return array Возвращает список ставок на лот
 */
-function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array
+function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array | null
 {
     $sql_query = "SELECT `bet`.`create_date`, `bet`.`summary`, `lot`.`name` AS `lot_name`, `account`.`name` AS `account_name`
     FROM `bet` INNER JOIN `lot` ON `bet`.`lot_id` = `lot`.`id` INNER JOIN `account` ON `bet`.`user_id` = `account`.`id` WHERE `bet`.`lot_id` = ? ORDER BY `bet`.`create_date` DESC, `bet`.`summary` ASC";
@@ -156,9 +153,8 @@ function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array
     mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
-    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    return $rows;
+    return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? null;
 }
 
 /**
@@ -392,13 +388,20 @@ function get_user_bets(mysqli $mysql, string $id) : array
 */
 function search_lots_by_name(mysqli $mysql, string $term, int $limit, int $offset) : array | null
 {
-    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP AND MATCH(`lot`.`name`, `lot`.`description`) AGAINST(?) LIMIT ? OFFSET ?";
+    $sql_query = "";
+    $stmt = null;
 
-    $stmt = mysqli_prepare($mysql, $sql_query);
-    mysqli_stmt_bind_param($stmt, 'sii', $term, $limit, $offset);
+    if (!empty($term)) 
+    {
+        $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` , COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP AND MATCH(`lot`.`name`, `lot`.`description`) AGAINST(?) GROUP BY `lot`.`id` LIMIT ? OFFSET ?";
+        $stmt = mysqli_prepare($mysql, $sql_query);
+        mysqli_stmt_bind_param($stmt, 'sii', $term, $limit, $offset);
+    } else {
+        $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP GROUP BY `lot`.`id`";
+        $stmt = mysqli_prepare($mysql, $sql_query);
+    }
+
     mysqli_stmt_execute($stmt);
-    
-    $result = mysqli_stmt_get_result($stmt);
 
-    return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? null;
+    return mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC) ?? null;
 }

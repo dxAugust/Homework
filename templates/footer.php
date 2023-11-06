@@ -36,7 +36,7 @@
       </a>
     </div>
     <?php if (isset($_SESSION['is_auth']) && $_SESSION['is_auth']): ?>
-      <a class="main-footer__add-lot button" href="add-lot.html">Добавить лот</a>
+      <a class="main-header__add-lot button" href="../add.php">Добавить лот</a>
     <?php endif; ?>
 
     <div class="main-footer__developed-by">
