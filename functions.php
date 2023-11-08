@@ -1,4 +1,9 @@
 <?php
+
+const MINUTES_IN_HOUR = 60;
+const SECOND_IN_MINUTE = 60;
+const HOUR_IN_DAY = 24;
+
 /**
 * Форматирует число добавляя пробелы, пример: 1 000 000
 * Также добавляет знак национальной валюты РФ
@@ -20,33 +25,6 @@ function make_number(int $num) : string
 function pretty_number(int $num) : string
 {
     return number_format($num, 0, '', ' ');
-}
-
-/**
-* Получает числительное слово относительно указанного числа
-* Пример: 1 год, 2 года, 25 лет
-* @param integer $num Число
-* @param array $words Словарь из трёх слов
-*
-* @return string Возвращает строку с форматрированным числом
-*/
-function num_to_word(int $num, array $words) : string
-{
-    $num = $num % 100;
-    if ($num > 19) {
-        $num = $num % 10;
-    }
-    switch ($num) {
-        case 1: {
-            return($words[0]);
-        }
-        case 2: case 3: case 4: {
-            return($words[1]);
-        }
-        default: {
-            return($words[2]);
-        }
-    }
 }
 
 /**
@@ -277,32 +255,31 @@ function add_bet_to_lot(mysqli $mysql, array $data) : void
 *
 * @return string Отформатированное время
 */
-function format_time(string $date) : string
+function format_time(string $date): string
 {
     $date_time = strtotime($date);
+    $diff = time() - $date_time;
 
-    $time = strtotime('now') - $date_time;
-    $time = ($time < 1 ) ? 1 : $time;
-    $tokens = array (
-        86400 => 'день назад',
-        3600 => 'часов назад',
-        60 => 'минут назад',
-        1 => 'секунд назад'
-    );
+    $day = floor($diff / (SECOND_IN_MINUTE * MINUTES_IN_HOUR * HOUR_IN_DAY));
+    $hour = floor($diff / (SECOND_IN_MINUTE * MINUTES_IN_HOUR));
+    $minute = floor($diff / SECOND_IN_MINUTE);
 
-    if ($time < 86400)
-    {
-        foreach ($tokens as $unit => $text) {
-            if ($time < $unit) continue;
-            $numberOfUnits = floor($time / $unit);
-            
-            return $numberOfUnits .' '. $text;
-        }
-    } else {
+    $sec = $diff;
+
+    if ($day >= 7) {
         return date('d.m.y в H:i', $date_time);
     }
-
-    return "";
+    if ($day >= 1) {
+        return $day . ' ' . get_noun_plural_form($day, 'день', 'дня', 'дней') . ' назад';
+    }
+    if ($hour >= 1) {
+        return $hour . ' ' . get_noun_plural_form($hour, 'час', 'часа', 'часов') . ' назад';
+    }
+    if ($minute >= 1) {
+        return $minute . ' ' . get_noun_plural_form($minute, 'минуту', 'минуты', 'минут') . ' назад';
+    } 
+    return $sec . ' ' . get_noun_plural_form($sec, 'секунду', 'секунды', 'секунд') . ' назад';
+    
 }
 
 /**
@@ -409,7 +386,7 @@ function get_user_bets(mysqli $mysql, string $id) : array
 */
 function check_expire_lot_winner(mysqli $mysql, array $data) : bool
 {
-    if (strtotime('now') <= strtotime($data['expire_date']) && empty($data["winner_id"]))
+    if (strtotime('now') >= strtotime($data['expire_date']) && empty($data["winner_id"]))
     {
         $sql_query = "SELECT `bet`.`summary`, `bet`.`user_id` FROM `bet` WHERE `bet`.`lot_id` = ? ORDER BY `bet`.`summary` ASC";
 
@@ -419,8 +396,6 @@ function check_expire_lot_winner(mysqli $mysql, array $data) : bool
 
         $result = mysqli_stmt_get_result($stmt);
         $betters = mysqli_fetch_all($result, MYSQLI_ASSOC);
-
-        print_r($betters);
 
         if (!empty($betters))
         {
@@ -432,6 +407,7 @@ function check_expire_lot_winner(mysqli $mysql, array $data) : bool
         } else {
             $sql_query = "UPDATE `lot` SET `winner_id` = NULL WHERE `id` = ?";
             $stmt = mysqli_prepare($mysql, $sql_query);
+            mysqli_stmt_bind_param($stmt, 'i', $data['id']);
             mysqli_stmt_execute($stmt);
         }
 

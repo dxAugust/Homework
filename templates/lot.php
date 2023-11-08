@@ -25,17 +25,17 @@
               <div class="lot-item__cost-state">
                 <div class="lot-item__rate">
                   <span class="lot-item__amount">Текущая цена</span>
-                  <span class="lot-item__cost"><?= pretty_number($lot_info['start_price']) ?></span>
+                  <span class="lot-item__cost"><?= make_number($lot_info['start_price']) ?></span>
                 </div>
                 <div class="lot-item__min-cost">
-                  Мин. ставка <span><?= pretty_number($lot_info['bet_step']) ?> р</span>
+                  Мин. ставка <span><?= make_number($lot_info['bet_step']) ?></span>
                 </div>
               </div>
 
                 <form class="lot-item__form" action="lot.php?id=<?= $lot_info["id"] ?>" method="post" autocomplete="off">
                   <p class="lot-item__form-item form__item <?php if(!empty($error)): ?> form__item--invalid <?php endif; ?>">
                     <label for="cost">Ваша ставка</label>
-                    <input id="cost" type="text" name="cost" placeholder="<?= pretty_number($lot_info['bet_step']) ?>">
+                    <input id="cost" type="text" name="cost" placeholder="<?= make_number($lot_info['bet_step']) ?>">
                     <span class="form__error"><?= $error ?></span>
                   </p>
                   <button type="submit" class="button">Сделать ставку</button>

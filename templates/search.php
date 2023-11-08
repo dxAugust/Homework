@@ -27,7 +27,7 @@
                         <span class="lot__amount">Стартовая цена</span>
                       <?php else: ?>
                         <span class="lot__amount">
-                          <?= intval($item['bet_count']), " ", num_to_word(intval($item['bet_count']), array('ставка', 'ставки', 'ставок')) ?>
+                          <?= intval($item['bet_count']), " ", get_noun_plural_form(intval($item['bet_count']), 'ставка', 'ставки', 'ставок') ?>
                         </span>
                       <?php endif; ?>
                   <span class="lot__cost"><?= make_number(htmlspecialchars($item['start_price'])) ?></span>
