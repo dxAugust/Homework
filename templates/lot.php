@@ -17,10 +17,11 @@
                   $minutes = $date[1];
               ?>
 
+              <?php if(strtotime('now') <= strtotime($lot_info['expire_date'])): ?>
               <div class="lot-item__timer timer <?php if (intval($hours) < 24): ?> timer--finishing <?php endif; ?>">
                   <?= sprintf('%s:%s', $hours, $minutes) ?>
               </div>
-              
+
               <div class="lot-item__cost-state">
                 <div class="lot-item__rate">
                   <span class="lot-item__amount">Текущая цена</span>
@@ -39,6 +40,12 @@
                   </p>
                   <button type="submit" class="button">Сделать ставку</button>
                 </form>
+
+              <?php else: ?>
+                <div class="lot-item__timer timer--end">Торги окончены</div>
+              <?php endif; ?>
+              
+              
           </div>
           <?php endif; ?>
 

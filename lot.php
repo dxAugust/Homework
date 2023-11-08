@@ -2,7 +2,7 @@
     require_once('init.php');
 
     $category_list = get_categories_list($mysql);
-    $lot_info = get_lot_info_by_id($mysql, $_GET['id']);
+    $lot_info = get_lot_info_by_id($mysql, intval($_GET['id']));
 
     $error = "";
 
@@ -26,7 +26,7 @@
       ');
     } else {
 
-      if($_SERVER['REQUEST_METHOD'] == 'POST')
+      if($_SERVER['REQUEST_METHOD'] === 'POST')
       {
         if (empty($_POST['cost'])) {
           $error = 'Поле не заполнено';

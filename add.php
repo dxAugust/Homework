@@ -2,63 +2,70 @@
     require_once('init.php');
 
     $error_codes = array(
-      "lot-name" => false,
-      "category" => false,
-      "message" => false,
-      "lot-img" => false,
-      "lot-rate" => false,
-      "lot-step" => false,
-      "lot-date" => false
+      "lot-name" => '',
+      "category" => '',
+      "message" => '',
+      "lot-img" => '',
+      "lot-rate" => '',
+      "lot-step" => '',
+      "lot-date" => ''
     );
 
-    if (isset($_POST['lot-name']) && empty($_POST['lot-name'])) {
-      $error_codes["lot-name"] = true;
-    }
 
-    if (isset($_POST['category']) && !$_POST['category']) {
-      $error_codes["category"] = true;
-    }
-
-    if (isset($_POST['message']) && empty($_POST['message'])) {
-      $error_codes["message"] = true;
-    }
-
-    if (isset($_FILES["lot-img"]) && !empty($_FILES['lot-img']['tmp_name'])) {
-      $mime_type = mime_content_type($_FILES['lot-img']['tmp_name']);
-      $allowed_file_types = ['image/png', 'image/jpeg', 'image/jpg'];
-      if (!in_array($mime_type, $allowed_file_types)) {
-        $error_codes["lot-img"] = true;
-      }
-    }
-
-    if (
-      isset($_POST['lot-rate'])
-      && empty($_POST['lot-rate']
-      && !preg_match("/[a-zA-Z]/", $_POST['lot-rate']))
-    ) {
-      $error_codes["lot-rate"] = true;
-    }
-
-    if (
-      isset($_POST['lot-step'])
-      && empty($_POST['lot-step']
-      && !preg_match("/[a-zA-Z]/", $_POST['lot-step']))
-    ) {
-      $error_codes["lot-step"] = true;
-    }
-
-    if (
-      isset($_POST['lot-date']) 
-      && !is_future_date($_POST['lot-date'])
-    ) {
-      $error_codes["lot-date"] = true;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST')
+    if ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
-      if (!isset($_FILES['lot-img']))
+      if (isset($_POST['lot-name']) && empty($_POST['lot-name'])) {
+        $error_codes["lot-name"] = 'Поле является обязательным для заполнения';
+      }
+  
+      if (isset($_POST['category']) && !$_POST['category']) {
+        $error_codes["category"] = 'Поле является обязательным для заполнения';
+      }
+  
+      if (isset($_POST['message']) && empty($_POST['message'])) {
+        $error_codes["message"] = 'Поле является обязательным для заполнения';
+      }
+  
+      if (isset($_FILES["lot-img"]) && !filesize($_FILES['lot-img']['tmp_name']))
       {
-        $error_codes["lot-img"] = true;
+        $error_codes["lot-img"] = 'Загрузите изображение';
+      }
+  
+      if (isset($_FILES["lot-img"]) && !empty($_FILES['lot-img']['tmp_name'])) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $_FILES['lot-img']['tmp_name']);
+        $allowed_file_types = ['image/png', 'image/jpeg', 'image/jpg'];
+        if (!in_array($mime_type, $allowed_file_types)) {
+          $error_codes["lot-img"] = 'Изображение должно быть в формате .png или .jpg';
+        }
+      }
+  
+      if (
+        isset($_POST['lot-rate'])
+        && empty($_POST['lot-rate']
+        && !preg_match("/[a-zA-Z]/", $_POST['lot-rate']))
+      ) {
+        $error_codes["lot-rate"] = 'Поле является обязательным для заполнения';
+      }
+  
+      if (
+        isset($_POST['lot-step'])
+        && empty($_POST['lot-step']
+        && !preg_match("/[a-zA-Z]/", $_POST['lot-step']))
+      ) {
+        $error_codes["lot-step"] = 'Поле является обязательным для заполнения';
+      }
+  
+      if (
+        isset($_POST['lot-date']) 
+        && empty($_POST['lot-date']))
+      {
+        $error_codes["lot-date"] = 'Поле является обязательным для заполнения';
+      } else if (isset($_POST['lot-date']) 
+      && !empty($_POST['lot-date']) &&
+      !is_future_date($_POST['lot-date']))
+      {
+        $error_codes["lot-date"] = 'Дата должна быть в будующем времени';
       }
 
       if (empty(array_filter($error_codes, 'strlen'))) {

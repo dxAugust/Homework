@@ -1,6 +1,8 @@
 <?php 
     require_once('init.php');
 
+    $page_title = "Авторизация";
+
     $error_codes = array(
         "email" => "",
         "password" => "",
@@ -14,7 +16,7 @@
         header("Location: /");  
     }
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST')
+    if ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
         if (isset($_POST["email"]) && (empty($_POST["email"]) || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)))
         {

@@ -1,10 +1,26 @@
 <footer class="main-footer">
   <nav class="nav">
+    
+    <?php 
+    $current_category = 0;  
+
+    if (isset($category_id))
+    {
+      $current_category = $category_id;
+    }
+    ?>
+
     <ul class="nav__list container">
         <?php foreach($categories as $item): ?>
-        <li class="nav__item">
-            <a href="../category.php?id=<?= $item["id"] ?>"><?= $item['name'] ?></a>
-        </li>
+          <?php if ($item["id"] != $current_category): ?>
+              <li class="nav__item">
+                  <a href="../category.php?id=<?= $item["id"] ?>"><?= $item['name'] ?></a>
+              </li>
+            <?php else: ?>
+              <li class="nav__item nav__item--current">
+                  <a href="../category.php?id=<?= $item["id"] ?>"><?= $item['name'] ?></a>
+              </li>
+          <?php endif; ?>
         <?php endforeach; ?>
     </ul>
   </nav>
@@ -53,6 +69,8 @@
   </div>
 </footer>
 
+<script src="../flatpickr.js"></script>
+<script src="../script.js"></script>
 </body>
 
 </html>

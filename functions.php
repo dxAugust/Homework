@@ -62,7 +62,7 @@ function is_future_date(string $date) : bool
         $date = DateTime::createFromFormat('Y-m-d', $date);
         $today = new DateTime();
 
-        return $date->getTimestamp() >= $today->getTimestamp();
+        return $date->getTimestamp() > $today->getTimestamp();
     } else {
         return false;
     }
@@ -111,6 +111,20 @@ function get_categories_list(mysqli $mysql) : array
 function get_lot_list(mysqli $mysql) : array
 {
     $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP GROUP BY `lot`.`id` ORDER BY `lot`.`date_create`;";
+    $result = mysqli_query($mysql, $sql_query);
+
+    return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? [];
+}
+
+/**
+* Получает список всех актуальных лотов
+* @param mysqli $mysql Текущее подключение к базе данных
+*
+* @return array Возвращает список всех актуальных лотов
+*/
+function get_all_lot_list(mysqli $mysql) : array
+{
+    $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` GROUP BY `lot`.`id` ORDER BY `lot`.`date_create`;";
     $result = mysqli_query($mysql, $sql_query);
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? [];
@@ -310,7 +324,7 @@ function get_post_val(string $name) : string
 *
 * @return integer ID зарегистрированного пользователя
 */
-function register_user(mysqli $mysql, array $data) : int
+function register_user(mysqli $mysql, array $data) : int | null
 {
     $sql_query = "INSERT INTO `account` (`email`, `name`, `password`, `contacts`) VALUES(?, ?, ?, ?)";
 
@@ -328,7 +342,12 @@ function register_user(mysqli $mysql, array $data) : int
     $userData["message"]
     );
 
-    mysqli_stmt_execute($stmt);
+    try { 
+        mysqli_stmt_execute($stmt);
+    } catch (mysqli_sql_exception $exception) {
+        return null;
+    }
+
     return mysqli_insert_id($mysql);
 }
 
@@ -363,10 +382,11 @@ function get_user_info_by_email(mysqli $mysql, string $email) : array | null
 function get_user_bets(mysqli $mysql, string $id) : array
 {
     $sql_query = "SELECT `bet`.*, `lot`.`id` as `lot_id`, `lot`.`name` as `lot_name`, `lot`.`image_link` as `lot_img`, `lot`.`expire_date` as `expire_date`,
-    `category`.`name` as `category_name`
+    `category`.`name` as `category_name`, `account`.`contacts` as `author_contacts`, `lot`.`winner_id` as `winner_id`
     FROM `bet`
     INNER JOIN `lot` ON `lot`.`id` = `bet`.`lot_id`
     INNER JOIN `category` ON `category`.`id` = `lot`.`category_id`
+    INNER JOIN `account` ON `account`.`id` = `lot`.`author_id`
     WHERE `bet`.`user_id` = ?
     ORDER BY `expire_date` DESC";
 
@@ -377,6 +397,48 @@ function get_user_bets(mysqli $mysql, string $id) : array
     $result = mysqli_stmt_get_result($stmt);
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC) ?? [];
+}
+
+/**
+* Функция проверяет были ли закончены торги у лота
+* Если торги окончены, устанавливает победителя основываясь на самой большой ставке
+* @param mysqli $mysql Текущее подключение к базе данных
+* @param array $data Информация о лоте
+*
+* @return bool Возвращает true в случае если у лота был установлен победитель, false в противном случае
+*/
+function check_expire_lot_winner(mysqli $mysql, array $data) : bool
+{
+    if (strtotime('now') <= strtotime($data['expire_date']) && empty($data["winner_id"]))
+    {
+        $sql_query = "SELECT `bet`.`summary`, `bet`.`user_id` FROM `bet` WHERE `bet`.`lot_id` = ? ORDER BY `bet`.`summary` ASC";
+
+        $stmt = mysqli_prepare($mysql, $sql_query);
+        mysqli_stmt_bind_param($stmt, 'i', $data['id']);
+        mysqli_stmt_execute($stmt);
+
+        $result = mysqli_stmt_get_result($stmt);
+        $betters = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        print_r($betters);
+
+        if (!empty($betters))
+        {
+            $sql_query = "UPDATE `lot` SET `winner_id` = ? WHERE `id` = ?";
+
+            $stmt = mysqli_prepare($mysql, $sql_query);
+            mysqli_stmt_bind_param($stmt, 'ii', $betters[0]['user_id'], $data['id']);
+            mysqli_stmt_execute($stmt);
+        } else {
+            $sql_query = "UPDATE `lot` SET `winner_id` = NULL WHERE `id` = ?";
+            $stmt = mysqli_prepare($mysql, $sql_query);
+            mysqli_stmt_execute($stmt);
+        }
+
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /**

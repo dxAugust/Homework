@@ -49,6 +49,7 @@
 
 print(include_template('footer.php', [
   'categories' => $category_list,
+  'category_id' => $current_category,
 ]));
 
 ?>
