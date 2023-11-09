@@ -29,7 +29,7 @@
                   <span class="lot__cost"><?= make_number(htmlspecialchars($item['start_price'])) ?></span>
                 </div>
                 <div class="lot__timer timer">
-                  <?= $hours . ':' . $minutes . ':' . $seconds ?>
+                  <?= $hours . ':' . $minutes ?>
                 </div>
               </div>
             </div>
@@ -38,7 +38,7 @@
         </ul>
       </section>
       <ul class="pagination-list">
-        <?php if ($current_page != 1): ?>
+        <?php if (intval($current_page) !== 1): ?>
           <li class="pagination-item pagination-item-prev"><a href="category.php?id=<?= $_GET["id"] ?><?php if(isset($_GET["page"])): ?>&page=<?= $_GET["page"] - 1 ?> <?php endif; ?>">Назад</a></li>
         <?php else: ?>
           <li class="pagination-item pagination-item-prev"><a>Назад</a></li>
@@ -46,7 +46,7 @@
 
         <?php for ($i = 1; $i <= $max_pages; $i++): ?>
 
-          <?php if ($current_page == $i): ?>
+          <?php if (intval($current_page) === intval($i)): ?>
             <li class="pagination-item pagination-item-active"><a><?= $i ?></a></li>
           <?php else: ?>
             <li class="pagination-item"><a href="category.php?id=<?= $_GET["id"] ?>&page=<?= $i ?>"><?= $i ?></a></li>
@@ -54,8 +54,8 @@
 
         <?php endfor; ?>
 
-        <?php if ($current_page != $max_pages): ?>
-          <li class="pagination-item pagination-item-next"><a href="category.php?id=<?= $_GET["id"] ?><?php if(isset($_GET["page"])): ?>&page=<?= $_GET["page"] + 1 ?> <?php endif; ?>">Вперед</a></li>
+        <?php if (intval($current_page) !== intval($max_pages)): ?>
+          <li class="pagination-item pagination-item-next"><a href="category.php?id=<?= $_GET["id"] ?><?php if(isset($_GET["page"])): ?>&page=<?= $_GET["page"] + 1 ?> <?php else: ?>&page=2<?php endif; ?>">Вперед</a></li>
         <?php else: ?>
           <li class="pagination-item pagination-item-next"><a>Вперед</a></li>
         <?php endif; ?>

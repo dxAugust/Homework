@@ -422,24 +422,40 @@ function check_expire_lot_winner(mysqli $mysql, array $data) : bool
 * @param mysqli $mysql Текущее подключение к базе данных
 * @param string $term Название искомого лота
 *
-* @return array Найденные лоты (В противном случае возвращает null)
+* @return array Найденные лоты (В противном случае возвращает пустой массив)
 */
-function search_lots_by_name(mysqli $mysql, string $term, int $limit, int $offset) : array | null
+function search_lots_by_name(mysqli $mysql, string $term, int $limit, int $offset) : array
 {
     $sql_query = "";
     $stmt = null;
+    $resultAll = null;
 
     if (!empty($term)) 
     {
+        $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` , COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP AND MATCH(`lot`.`name`, `lot`.`description`) AGAINST(?) GROUP BY `lot`.`id`";
+        $stmt = mysqli_prepare($mysql, $sql_query);
+        mysqli_stmt_bind_param($stmt, 's', $term);
+        mysqli_stmt_execute($stmt);
+        $resultAll = mysqli_stmt_get_result($stmt);
+
         $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name` , COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP AND MATCH(`lot`.`name`, `lot`.`description`) AGAINST(?) GROUP BY `lot`.`id` LIMIT ? OFFSET ?";
         $stmt = mysqli_prepare($mysql, $sql_query);
         mysqli_stmt_bind_param($stmt, 'sii', $term, $limit, $offset);
     } else {
+        
         $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP GROUP BY `lot`.`id`";
         $stmt = mysqli_prepare($mysql, $sql_query);
+        mysqli_stmt_execute($stmt);
+        $resultAll = mysqli_stmt_get_result($stmt);
+
+        $sql_query = "SELECT `lot`.*, `category`.`name` AS `category_name`, COUNT(`bet`.`id`) AS `bet_count` FROM `lot` INNER JOIN `category` ON `lot`.`category_id` = `category`.`id` LEFT JOIN `bet` ON `bet`.`lot_id` = `lot`.`id` WHERE `lot`.`expire_date` >= CURRENT_TIMESTAMP GROUP BY `lot`.`id` LIMIT ? OFFSET ?";
+        $stmt = mysqli_prepare($mysql, $sql_query);
+        mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
     }
 
     mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    return mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC) ?? null;
+    return [mysqli_num_rows($resultAll), $rows] ?? [];
 }

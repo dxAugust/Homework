@@ -1,5 +1,7 @@
 <section class="rates container">
       <h2>Мои ставки</h2>
+
+      <?php if (!empty($bets)): ?>
       <table class="rates__list">
 
         <?php foreach($bets as $bet): ?>
@@ -52,11 +54,10 @@
                 $date = get_dt_range($bet['expire_date']); 
                 $hours = $date[0];
                 $minutes = $date[1];
-                $seconds = $date[2];
                 ?>
 
                     <div class="timer <?php if (intval($hours) < 24): ?> timer--finishing <?php endif; ?>">
-                  <?= sprintf('%s:%s:%s', $hours, $minutes, $seconds) ?>
+                  <?= sprintf('%s:%s', $hours, $minutes) ?>
                 </div>
               </td>
             <?php endif; ?>
@@ -70,5 +71,9 @@
           </tr>
 
         <?php endforeach; ?>
+
+        <?php else: ?>
+          <p>Вы ещё не сделали не одной ставки</p>
+        <?php endif; ?>
       </table>
     </section>

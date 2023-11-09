@@ -38,9 +38,8 @@
                      $date_range = get_dt_range($item['expire_date']);
                      $hours = $date_range[0];
                      $minutes = $date_range[1];
-                     $seconds = $date_range[2];
                   ?>
-                  <?= $hours . ':' . $minutes . ':' . $seconds ?>
+                  <?= $hours . ':' . $minutes?>
                 </div>
               </div>
             </div>
@@ -49,24 +48,24 @@
         </ul>
       </section>
       <ul class="pagination-list">
-        <?php if ($current_page != $max_pages): ?>
-          <li class="pagination-item pagination-item-prev"><a href="search.php?search=<?= $_GET["search"] ?><?php if(isset($_GET["page"])): ?>&page=<?= $_GET["page"] - 1 ?> <?php endif; ?>">Назад</a></li>
+        <?php if (intval($current_page) !== 1): ?>
+          <li class="pagination-item pagination-item-prev"><a href="search.php?search=<?php if(isset($_GET["search"])): ?><?= $_GET["search"] ?><?php endif; ?><?php if(isset($_GET["page"])): ?>&page=<?= $_GET["page"] - 1 ?> <?php endif; ?>">Назад</a></li>
         <?php else: ?>
           <li class="pagination-item pagination-item-prev"><a>Назад</a></li>
         <?php endif; ?>
 
         <?php for ($i = 1; $i <= $max_pages; $i++): ?>
 
-          <?php if ($current_page == $i): ?>
+          <?php if (intval($current_page) === intval($i)): ?>
             <li class="pagination-item pagination-item-active"><a><?= $i ?></a></li>
           <?php else: ?>
-            <li class="pagination-item"><a><?= $i ?></a></li>
+            <li class="pagination-item"><a href="search.php?search=<?= $_GET["search"] ?>&page=<?= $i ?>"><?= $i ?></a></li>
           <?php endif; ?>
 
         <?php endfor; ?>
 
-        <?php if ($current_page != $max_pages): ?>
-          <li class="pagination-item pagination-item-next"><a href="search.php?search=<?= $_GET["search"] ?><?php if(isset($_GET["page"])): ?>&page=<?= $_GET["page"] + 1 ?> <?php endif; ?>">Вперед</a></li>
+        <?php if (intval($current_page) !== intval($max_pages)): ?>
+          <li class="pagination-item pagination-item-next"><a href="search.php?search=<?php if(isset($_GET["search"])): ?><?= $_GET["search"] ?><?php endif; ?><?php if(isset($_GET["page"])): ?>&page=<?= $_GET["page"] + 1 ?> <?php else: ?>&page=2<?php endif; ?>">Вперед</a></li>
         <?php else: ?>
           <li class="pagination-item pagination-item-next"><a>Вперед</a></li>
         <?php endif; ?>

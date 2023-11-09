@@ -16,7 +16,7 @@
     if (isset($_GET['id']))
     {
       $lot_info = get_lot_info_by_id($mysql, intval($_GET['id']));
-      $bets = get_bet_list_by_lot_id($mysql, $_GET['id']);
+      $bets = get_bet_list_by_lot_id($mysql, intval($_GET['id']));
 
       if (empty($lot_info))
       {
@@ -67,6 +67,8 @@
               $data['lot_id'] = intval($_GET['id']);
 
               add_bet_to_lot($mysql, $data);
+
+              header("Location: /lot.php?id=" . intval($_GET['id']));
             }
           }
         }
@@ -81,16 +83,17 @@
         ]));
       }
     } else {
-        header("HTTP/1.1 400 Bad Request");
+      header("HTTP/1.1 404 Not Found");
+        $page_title = 'Страница не найдена';
 
         print('
         <section class="lot-item container">
-              <h2>400 Неверный запрос</h2>
-              <p>Запрос к странице был произведён неверно.</p>
+              <h2>404 Страница не найдена</h2>
+              <p>Данной страницы не существует на сайте.</p>
         </section>
   
         </main>
-        ');
+      ');
     }
 ?>
 
