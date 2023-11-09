@@ -17,32 +17,31 @@
                   $minutes = $date[1];
               ?>
 
-              <?php if(strtotime('now') <= strtotime($lot_info['expire_date'])): ?>
-              <div class="lot-item__timer timer <?php if (intval($hours) < 24): ?> timer--finishing <?php endif; ?>">
-                  <?= sprintf('%s:%s', $hours, $minutes) ?>
-              </div>
+              <?php if(strtotime('now') <= strtotime($lot_info['expire_date']) && (isset($_SESSION['user_id']) && $lot_info['author_id'] !== $_SESSION['user_id'])): ?>
+                <div class="lot-item__timer timer <?php if (intval($hours) < 24): ?> timer--finishing <?php endif; ?>">
+                    <?= sprintf('%s:%s', $hours, $minutes) ?>
+                </div>
+              <?php endif; ?>
 
               <div class="lot-item__cost-state">
                 <div class="lot-item__rate">
                   <span class="lot-item__amount">Текущая цена</span>
-                  <span class="lot-item__cost"><?= make_number($lot_info['start_price']) ?></span>
+                  <span class="lot-item__cost"><?= make_number($price) ?></span>
                 </div>
                 <div class="lot-item__min-cost">
-                  Мин. ставка <span><?= make_number($lot_info['bet_step']) ?></span>
+                  Мин. ставка <span><?= make_number($min_bet) ?></span>
                 </div>
               </div>
 
+              <?php if(strtotime('now') <= strtotime($lot_info['expire_date']) && (isset($_SESSION['user_id']) && $lot_info['author_id'] !== $_SESSION['user_id'])): ?>
                 <form class="lot-item__form" action="lot.php?id=<?= $lot_info["id"] ?>" method="post" autocomplete="off">
                   <p class="lot-item__form-item form__item <?php if(!empty($error)): ?> form__item--invalid <?php endif; ?>">
                     <label for="cost">Ваша ставка</label>
-                    <input id="cost" type="text" name="cost" placeholder="<?= make_number($lot_info['bet_step']) ?>">
+                    <input id="cost" type="text" name="cost" placeholder="<?= make_number($min_bet) ?>">
                     <span class="form__error"><?= $error ?></span>
                   </p>
                   <button type="submit" class="button">Сделать ставку</button>
                 </form>
-
-              <?php else: ?>
-                <div class="lot-item__timer timer--end">Торги окончены</div>
               <?php endif; ?>
               
               

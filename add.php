@@ -70,7 +70,7 @@
 
       if (empty(array_filter($error_codes, 'strlen'))) {
         $data = $_POST;
-        $data["author_id"] = $user_id;
+        $data["author_id"] = $_SESSION['user_id'];
 
         $file_name = $_FILES["lot-img"]['name'] . time();
 
