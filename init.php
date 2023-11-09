@@ -8,10 +8,6 @@ date_default_timezone_set('Asia/Yekaterinburg');
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $page_title = 'Главная';
-$is_auth = 0;
-$user_name = '';
-
-$user_id = 1;
 
 const UPLOADS_PATH = __DIR__ . '/uploads/';
 
