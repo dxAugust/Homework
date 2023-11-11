@@ -137,7 +137,7 @@ function get_lot_info_by_id(mysqli $mysql, int $id) : array
 */
 function get_bet_list_by_lot_id(mysqli $mysql, int $id) : array | null
 {
-    $sql_query = "SELECT `bet`.`create_date`, `bet`.`summary`, `lot`.`name` AS `lot_name`, `account`.`name` AS `account_name`
+    $sql_query = "SELECT `bet`.`create_date`, `bet`.`summary`, `lot`.`name` AS `lot_name`, `account`.`name` AS `account_name`, `account`.`id` AS `user_id`
     FROM `bet` INNER JOIN `lot` ON `bet`.`lot_id` = `lot`.`id` INNER JOIN `account` ON `bet`.`user_id` = `account`.`id` WHERE `bet`.`lot_id` = ? ORDER BY `bet`.`create_date` DESC, `bet`.`summary` ASC";
 
     $stmt = mysqli_prepare($mysql, $sql_query);

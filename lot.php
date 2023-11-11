@@ -3,7 +3,6 @@
 
     $category_list = get_categories_list($mysql);
     
-
     $error = "";
 
     $page_title = 'Лот';
@@ -25,8 +24,8 @@
 
         print('
         <section class="lot-item container">
-              <h2>404 Страница не найдена</h2>
-              <p>Данной страницы не существует на сайте.</p>
+          <h2>404 Страница не найдена</h2>
+          <p>Данной страницы не существует на сайте.</p>
         </section>
   
         </main>
@@ -54,6 +53,10 @@
             {
               if(!isset($errors['cost']) && $_POST['cost'] < $min_bet) {
                 $error = 'Ставка должна быть больше, либо равна минимальной ставке';
+              }
+
+              if(!isset($errors['cost']) && $_POST['cost'] < PHP_INT_MAX) {
+                $error = 'Ставка слишком большая';
               }
             }
           }

@@ -33,7 +33,7 @@
                 </div>
               </div>
 
-              <?php if(strtotime('now') <= strtotime($lot_info['expire_date']) && (isset($_SESSION['user_id']) && $lot_info['author_id'] !== $_SESSION['user_id'])): ?>
+              <?php if(strtotime('now') <= strtotime($lot_info['expire_date']) && (isset($_SESSION['user_id']) && $lot_info['author_id'] !== $_SESSION['user_id']) && ($bet_history[0]['user_id'] !== $_SESSION['user_id'])): ?>
                 <form class="lot-item__form" action="lot.php?id=<?= $lot_info["id"] ?>" method="post" autocomplete="off">
                   <p class="lot-item__form-item form__item <?php if(!empty($error)): ?> form__item--invalid <?php endif; ?>">
                     <label for="cost">Ваша ставка</label>
