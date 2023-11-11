@@ -54,10 +54,6 @@
               if(!isset($errors['cost']) && $_POST['cost'] < $min_bet) {
                 $error = 'Ставка должна быть больше, либо равна минимальной ставке';
               }
-
-              if(!isset($errors['cost']) && $_POST['cost'] < PHP_INT_MAX) {
-                $error = 'Ставка слишком большая';
-              }
             }
           }
 

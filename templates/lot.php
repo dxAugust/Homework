@@ -33,15 +33,17 @@
                 </div>
               </div>
 
-              <?php if(strtotime('now') <= strtotime($lot_info['expire_date']) && (isset($_SESSION['user_id']) && $lot_info['author_id'] !== $_SESSION['user_id']) && ($bet_history[0]['user_id'] !== $_SESSION['user_id'])): ?>
-                <form class="lot-item__form" action="lot.php?id=<?= $lot_info["id"] ?>" method="post" autocomplete="off">
-                  <p class="lot-item__form-item form__item <?php if(!empty($error)): ?> form__item--invalid <?php endif; ?>">
-                    <label for="cost">Ваша ставка</label>
-                    <input id="cost" type="text" name="cost" placeholder="<?= make_number($min_bet) ?>">
-                    <span class="form__error"><?= $error ?></span>
-                  </p>
-                  <button type="submit" class="button">Сделать ставку</button>
-                </form>
+              <?php if(strtotime('now') <= strtotime($lot_info['expire_date']) && (isset($_SESSION['user_id']) && $lot_info['author_id'] !== $_SESSION['user_id'])): ?>
+                <?php if(!empty($bet_history) && $bet_history[0]['user_id'] !== $_SESSION['user_id'] || empty($bet_history)): ?>
+                  <form class="lot-item__form" action="lot.php?id=<?= $lot_info["id"] ?>" method="post" autocomplete="off">
+                    <p class="lot-item__form-item form__item <?php if(!empty($error)): ?> form__item--invalid <?php endif; ?>">
+                      <label for="cost">Ваша ставка</label>
+                      <input id="cost" type="text" name="cost" placeholder="<?= make_number($min_bet) ?>">
+                      <span class="form__error"><?= $error ?></span>
+                    </p>
+                    <button type="submit" class="button">Сделать ставку</button>
+                  </form>
+                <?php endif; ?>
               <?php endif; ?>
               
               
